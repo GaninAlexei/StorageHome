@@ -1,0 +1,2 @@
+rootProject.name = "StorageVersion2"
+include ':app'
