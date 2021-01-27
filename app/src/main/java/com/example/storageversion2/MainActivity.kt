@@ -67,7 +67,9 @@ class MainActivity : AppCompatActivity() {
 
         //save to external storage
         binding.saveExternal.setOnClickListener {
-            startExternalFeature()
+            val text = binding.editTextNote.editableText.toString()
+            externalStorage.write(text)
+            binding.editTextNote.editableText.clear()
         }
 
         //load from external storage
@@ -103,85 +105,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun externalSave() {
-        val text = binding.editTextNote.editableText.toString()
-        externalStorage.write(text)
-        binding.editTextNote.editableText.clear()
-    }
-
-    private fun startExternalFeature() {
-
-        val permission = MANAGE_EXTERNAL_STORAGE
-        handleCheckResult(
-            permission,
-            checkPermission(permission)
-        )
-    }
-
-    private fun checkPermission(permission: String): CheckPermissionResult {
-        return when {
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.M -> CheckPermissionResult.GRANTED
-
-            ContextCompat.checkSelfPermission(
-                this,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED -> CheckPermissionResult.GRANTED
-
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
-                permission
-            ) -> CheckPermissionResult.NEED_TO_EXPLAIN
-
-            else -> CheckPermissionResult.NEED_TO_REQUEST
-        }
-    }
-
-    private fun handleCheckResult(permission: String, result: CheckPermissionResult){
-        when (result){
-            CheckPermissionResult.GRANTED -> externalSave()
-            CheckPermissionResult.DENIED -> failedGracefully()
-            CheckPermissionResult.NEED_TO_REQUEST -> askForPermission(MANAGE_EXTERNAL_STORAGE)
-            CheckPermissionResult.NEED_TO_EXPLAIN -> showRationale()
-        }
-    }
-
-    private fun showRationale() {
-        AlertDialog.Builder(this)
-            .setTitle("External storage permission")
-            .setMessage("External storage permission is needed to allow this feature work.")
-            .setPositiveButton("I understand") { _, _ -> askForPermission(MANAGE_EXTERNAL_STORAGE) }
-            .show()
-    }
-
-    private fun failedGracefully() {
-        AlertDialog.Builder(this)
-            .setTitle("External storage permission")
-            .setMessage("External storage Permission was not granted. We respect your decision.")
-            .setNegativeButton("I changed my mind") { _, _ -> askForPermission(MANAGE_EXTERNAL_STORAGE)}
-            .setPositiveButton("Ok", null)
-            .show()
-    }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ){ isGranted: Boolean ->
-            if(isGranted){
-                externalSave()
-            } else{
-                failedGracefully()
-            }
-        }
-
-    private fun askForPermission(permission: String) {
-        requestPermissionLauncher.launch(permission)
-    }
-
-    enum class CheckPermissionResult{
-        GRANTED,
-        DENIED,
-        NEED_TO_REQUEST,
-        NEED_TO_EXPLAIN
-    }
 }
 
 

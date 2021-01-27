@@ -1,5 +1,6 @@
 package com.example.storageversion2
 
+import android.content.Context
 import android.os.Environment
 import android.widget.Toast
 import java.io.File
@@ -7,7 +8,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.PrintWriter
 
-class ExternalStorage(private val activity: MainActivity) {
+class ExternalStorage(private val context: Context) {
 
     companion object{
         private const val FILE_NAME = "FILE_NAME"
@@ -16,11 +17,8 @@ class ExternalStorage(private val activity: MainActivity) {
     fun write(text: String){
         if (isExternalStorageWritable()) {
 
-            val root = Environment.getExternalStorageDirectory()
-            val dir = File(root.absolutePath + "/download")
-            dir.mkdirs()
-            val file = File(dir, FILE_NAME)
-
+            val root = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+            val file = File(root, FILE_NAME)
 
             try {
                 var fileOutputStream = FileOutputStream(file)
@@ -30,33 +28,32 @@ class ExternalStorage(private val activity: MainActivity) {
                 printWriter.close()
                 fileOutputStream.close()
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                Toast.makeText(context, "Error, file not found", Toast.LENGTH_LONG).show()
             }
         }
         else{
-            Toast.makeText(activity, "Sorry, we can't write", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Sorry, we can't write", Toast.LENGTH_LONG).show()
         }
     }
 
     fun read() : String?{
         if (isExternalStorageReadable()) {
 
-            val root = Environment.getExternalStorageDirectory()
-            val dir = File(root.absolutePath + "/download")
+            val root = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
 
             return try {
-                val file = File(dir, FILE_NAME)
+                val file = File(root, FILE_NAME)
                 val fileInputStream = FileInputStream(file)
                 val read = fileInputStream.readBytes()
                 fileInputStream.close()
                 read.decodeToString()
             } catch (ex: Exception) {
-                ex.printStackTrace()
+                Toast.makeText(context, "Error, file not found", Toast.LENGTH_LONG).show()
                 null
             }
         }
         else{
-            Toast.makeText(activity, "Sorry, we can't read ", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Sorry, we can't read ", Toast.LENGTH_LONG).show()
             return null
         }
     }

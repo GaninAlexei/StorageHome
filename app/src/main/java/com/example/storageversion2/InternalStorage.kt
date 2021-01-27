@@ -1,9 +1,10 @@
 package com.example.storageversion2
 
 import android.content.Context
+import android.widget.Toast
 import java.io.*
 
-class InternalStorage(private val activity: MainActivity){
+class InternalStorage(private val context: Context){
 
     companion object{
         private const val FILE_NAME = "FILE_NAME"
@@ -12,25 +13,25 @@ class InternalStorage(private val activity: MainActivity){
     fun write(text: String){
 
         try {
-            val fileOutputStream = activity.openFileOutput(FILE_NAME, Context.MODE_PRIVATE)
+            val fileOutputStream = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE)
             fileOutputStream.write(text.toByteArray())
             fileOutputStream.close()
         }
         catch (ex: Exception) {
-            ex.printStackTrace()
+            Toast.makeText(context, "Error, file not found", Toast.LENGTH_LONG).show()
         }
     }
 
     fun read() : String?{
 
         return try {
-            val fileInputStream = activity.openFileInput(FILE_NAME)
+            val fileInputStream = context.openFileInput(FILE_NAME)
             val read = fileInputStream.readBytes()
             fileInputStream.close()
             read.decodeToString()
         }
         catch (ex: Exception){
-            ex.printStackTrace()
+            Toast.makeText(context, "Error, file not found", Toast.LENGTH_LONG).show()
             null
         }
     }
